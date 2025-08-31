@@ -6,9 +6,10 @@ import com.remit.remittance.dto.RemitResponseDTO;
 import com.remit.remittance.entity.RemitForm;
 import com.remit.remittance.exception.ValidationException;
 import com.remit.remittance.repository.RemitRepository;
-import com.remit.remittance.validator.RemitFormValidator;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.internal.bytebuddy.asm.Advice;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,6 +53,22 @@ public class RemitServiceImpl implements RemitServiceI {
                 .stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public Page<RemitResponseDTO> getAllPaginated(Pageable pageable) {
+        // Fetch paginated entities from repository
+        Page<RemitForm> page = repository.findAll(pageable);
+
+        // Map entities to DTOs
+        List<RemitResponseDTO> dtoList = page.getContent()
+                .stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+
+        // Return as Page<RemitResponseDTO>
+        return new PageImpl<>(dtoList, pageable, page.getTotalElements());
     }
 
     @Override
@@ -119,7 +136,7 @@ public class RemitServiceImpl implements RemitServiceI {
     //----------GETBYSENDERNAME------------------
     @Override
     public List<RemitResponseDTO> getBySenderName(String senderName) {
-        List<RemitForm> remits = repository.findBySenderName(senderName);
+        List<RemitForm> remits = repository.findBySenderNameStartingWithIgnoreCase(senderName);
 
         if (remits.isEmpty()) {
             throw new RuntimeException("No remit found with sender name: " + senderName);
@@ -130,6 +147,33 @@ public class RemitServiceImpl implements RemitServiceI {
                 .map(remit -> modelMapper.map(remit, RemitResponseDTO.class))
                 .collect(Collectors.toList());
     }
+
+
+
+    public List<RemitResponseDTO> getBySenderNameandOptionalBeneficiary(String senderName,String beneficiaryName) {
+        List<RemitForm> remits = repository.findBySenderNameStartingWithIgnoreCase(senderName);
+
+
+        if (remits.isEmpty()) {
+            throw new RuntimeException("No remit found with sender name: " + senderName);
+        }
+
+        if(beneficiaryName!=null && !beneficiaryName.isEmpty()){
+            remits=remits.stream()
+                    .filter(r->beneficiaryName.equals(r.getBeneficiaryName()))
+                    .collect(Collectors.toList());
+        }
+        if(remits.isEmpty()){
+            throw new RuntimeException("No remit found with sender: " + senderName +
+                    " and beneficiary: " + beneficiaryName);
+        }
+
+        // Map all RemitForm objects to RemitResponseDTO
+        return remits.stream()
+                .map(r-> modelMapper.map(r, RemitResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
 
 
 
@@ -156,8 +200,8 @@ public class RemitServiceImpl implements RemitServiceI {
             case "USD" -> 139.0;
             case "EUR" -> 160.0;
             case "GBP" -> 120.0;
-            case "INR" -> 1.6;
             case "NPR" -> 1.0;
+            case "INR" -> 1.6;
             default -> 1.0;
         };
     }

@@ -3,8 +3,10 @@ package com.remit.remittance.controller;
 import com.remit.remittance.dto.GlobalApiResponse;
 import com.remit.remittance.dto.RemitRequestDTO;
 import com.remit.remittance.dto.RemitResponseDTO;
+import com.remit.remittance.service.RemitServiceI;
 import com.remit.remittance.usecase.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +23,7 @@ public class RemitController {
     private final FindBySenderNameUseCase findBySenderNameUseCase;
 
     private final DeleteUseCase deleteUseCase;
-
-
+    private final RemitServiceI remitServiceI;
 
 
     @PostMapping("/remittance/create")
@@ -32,8 +33,11 @@ public class RemitController {
     }
 
     @GetMapping("/remittance/fetch")
-    public GlobalApiResponse<List<RemitResponseDTO>> getAll(){
-return  getAllUseCase.getAllRemit();
+    public GlobalApiResponse<Page<RemitResponseDTO>> getAll(
+            @RequestParam(defaultValue = "0")int page,
+            @RequestParam(defaultValue = "5")int size
+    ){
+return  getAllUseCase.getAllRemit(page,size);
     }
 
     @GetMapping("/remittance")
@@ -43,10 +47,23 @@ return  getAllUseCase.getAllRemit();
 
 
 
-    @GetMapping("/remittance/sender")
-    public GlobalApiResponse<List<RemitResponseDTO>> getBySenderName(@RequestParam String senderName) {
-        return findBySenderNameUseCase.findBySenderName(senderName);
+//    @GetMapping("/remittance/sender")
+//    public GlobalApiResponse<List<RemitResponseDTO>> getBySenderName(@RequestParam String senderName,@RequestParam(required = false) String beneficiaryName) {
+//        return findBySenderNameUseCase.findBySenderName(senderName,beneficiaryName);
+//    }
+@GetMapping("/remittance/sender")
+public GlobalApiResponse<List<RemitResponseDTO>> getBySender(
+        @RequestParam String senderName,
+        @RequestParam(required = false) String beneficiaryName) {
+
+    try {
+        List<RemitResponseDTO> remits = remitServiceI.getBySenderNameandOptionalBeneficiary(senderName, beneficiaryName);
+        return GlobalApiResponse.success("Fetched successfully", remits);
+    } catch (RuntimeException e) {
+        return GlobalApiResponse.failure(e.getMessage(), null);
     }
+}
+
 
 
     @PutMapping("/remittance/update")

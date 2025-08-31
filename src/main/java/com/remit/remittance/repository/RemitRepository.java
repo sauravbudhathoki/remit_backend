@@ -4,8 +4,9 @@ import com.remit.remittance.entity.RemitForm;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface RemitRepository extends JpaRepository<RemitForm, Long> {
-    List<RemitForm> findBySenderName(String senderName);
+    List<RemitForm> findBySenderNameStartingWithIgnoreCase(String senderName);
+
+    List<RemitForm> findBySenderNameStartingWithAndBeneficiaryNameContainingIgnoreCase(String senderName, String beneficiaryName);
 }

@@ -4,6 +4,8 @@ import com.remit.remittance.constantsmessage.ConstantsMessage;
 import com.remit.remittance.dto.GlobalApiResponse;
 import com.remit.remittance.dto.RemitResponseDTO;
 import com.remit.remittance.service.RemitServiceI;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,11 +18,11 @@ public class GetAllUseCase {
     public GetAllUseCase(RemitServiceI remitServiceI){
         this.remitServiceI = remitServiceI;
     }
-    public GlobalApiResponse<List<RemitResponseDTO>> getAllRemit() {
+    public GlobalApiResponse<Page<RemitResponseDTO>> getAllRemit(int page,int size) {
 
 
         try {
-            List<RemitResponseDTO> all = remitServiceI.getAll();
+            Page<RemitResponseDTO> all =remitServiceI.getAllPaginated(PageRequest.of(page,size));
             if (all.isEmpty()) {
                 return GlobalApiResponse.failure(ConstantsMessage.NO_DATA_FOUND, null);
             }

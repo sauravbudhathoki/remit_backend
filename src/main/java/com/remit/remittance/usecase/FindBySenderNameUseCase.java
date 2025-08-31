@@ -18,14 +18,24 @@ public class FindBySenderNameUseCase {
     private final RemitRepository remitRepository;
     private final ModelMapper modelMapper;
 
-    public GlobalApiResponse<List<RemitResponseDTO>> findBySenderName(String senderName) {
+    public GlobalApiResponse<List<RemitResponseDTO>> findBySenderNameAndOptionalBeneficiary(
+            String senderName, String beneficiaryName) {
+
         try {
-            List<RemitForm> remits = remitRepository.findBySenderName(senderName);
+            List<RemitForm> remits;
+
+            if (beneficiaryName != null && !beneficiaryName.isBlank()) {
+                remits = remitRepository
+                        .findBySenderNameStartingWithAndBeneficiaryNameContainingIgnoreCase(
+                                senderName, beneficiaryName);
+            } else {
+                remits = remitRepository.findBySenderNameStartingWithIgnoreCase(senderName);
+            }
 
             if (remits.isEmpty()) {
                 return GlobalApiResponse.failure(
                         ConstantsMessage.NO_DATA_FOUND,
-                        "No remit found with senderName: " + senderName
+                        "No remits found for the given search criteria."
                 );
             }
 

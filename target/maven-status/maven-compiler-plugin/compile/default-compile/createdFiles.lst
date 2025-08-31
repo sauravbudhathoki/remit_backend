@@ -1,0 +1,5 @@
+com\remit\RemitApplication.class
+com\remit\remittance\service\RemitService.class
+com\remit\remittance\entity\RemitForm.class
+com\remit\remittance\controller\RemitController.class
+com\remit\remittance\repository\RemitRepository.class
