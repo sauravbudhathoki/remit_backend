@@ -151,24 +151,55 @@ public class RemitServiceImpl implements RemitServiceI {
 
 
     public List<RemitResponseDTO> getBySenderNameandOptionalBeneficiary(String senderName,String beneficiaryName) {
-        List<RemitForm> remits = repository.findBySenderNameStartingWithIgnoreCase(senderName);
+        List<RemitForm> remits ;
 
-
-        if (remits.isEmpty()) {
-            throw new RuntimeException("No remit found with sender name: " + senderName);
-        }
-
-        if(beneficiaryName!=null && !beneficiaryName.isEmpty()){
-            String search =beneficiaryName.toLowerCase();
+//case 1:senderName anf beneficiaryName both provide gareko belama
+        if(senderName!=null && !senderName.isEmpty() && beneficiaryName!=null && !beneficiaryName.isEmpty()){
+            remits=repository.findBySenderNameStartingWithIgnoreCase(senderName);
+            String searchBeneficiary=beneficiaryName.toLowerCase();
             remits=remits.stream()
-                    .filter(r-> r.getBeneficiaryName()!=null &&
-                            r.getBeneficiaryName().toLowerCase().contains(search))
+                    .filter(r->r.getBeneficiaryName()!=null &&
+                            r.getBeneficiaryName().toLowerCase().startsWith(searchBeneficiary))
                     .collect(Collectors.toList());
         }
-        if(remits.isEmpty()){
-            throw new RuntimeException("No remit found with sender: " + senderName +
-                    " and beneficiary: " + beneficiaryName);
+
+
+        //case 2:only sender name provided
+        else if(senderName!=null && !senderName.isEmpty()){
+            remits=repository.findBySenderNameStartingWithIgnoreCase(senderName);
         }
+        //case 3:only beneficiaryName provided
+        else if (beneficiaryName!=null && !beneficiaryName.isEmpty()){
+            String searchBeneficiary=beneficiaryName.toLowerCase();
+            remits=repository.findAll().stream()
+                    .filter(r->r.getBeneficiaryName()!=null &&
+                            r.getBeneficiaryName().toLowerCase().startsWith(searchBeneficiary))
+                    .collect(Collectors.toList());
+        }
+        //case 4:neither provided
+        else {
+            return repository.findAll().stream()
+                    .map(r -> modelMapper.map(r, RemitResponseDTO.class))
+                    .collect(Collectors.toList());
+        }
+
+        // Check if the result is empty **after handling all cases**
+         if(remits.isEmpty()) {
+            String message;
+            if ((senderName != null && !senderName.isEmpty()) && (beneficiaryName != null && !beneficiaryName.isEmpty())) {
+                message = "No remit found with sender: " + senderName + " and beneficiary: " + beneficiaryName;
+            } else if (senderName != null && !senderName.isEmpty()) {
+                message = "No remit found with sender: " + senderName;
+            } else if (beneficiaryName != null && !beneficiaryName.isEmpty()) {
+                message = "No remit found with beneficiary: " + beneficiaryName;
+            } else {
+                message = "No remit found for the given criteria";
+            }
+            throw new RuntimeException(message);
+        }
+
+
+
 
         // Map all RemitForm objects to RemitResponseDTO
         return remits.stream()

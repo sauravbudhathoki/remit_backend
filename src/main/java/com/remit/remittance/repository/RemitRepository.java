@@ -13,7 +13,7 @@ public interface RemitRepository extends JpaRepository<RemitForm, Long> {
     List<RemitForm> findBySenderNameStartingWithAndBeneficiaryNameStartingWithIgnoreCase(String senderName, String beneficiaryName);
 
 
-//    List<RemitForm> findByBeneficiaryNameStartingWith(String beneficiaryName);
+   List<RemitForm> findByBeneficiaryNameStartingWithIgnoreCase(String beneficiaryName);
 
 
 }

@@ -53,7 +53,7 @@ return  getAllUseCase.getAllRemit(page,size);
 //    }
 @GetMapping("/remittance/sender")
 public GlobalApiResponse<List<RemitResponseDTO>> getBySender(
-        @RequestParam String senderName,
+        @RequestParam(required = false) String senderName,
         @RequestParam(required = false) String beneficiaryName) {
 
     try {
