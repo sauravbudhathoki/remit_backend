@@ -23,5 +23,6 @@ public interface RemitServiceI {
    List<RemitResponseDTO> getBySenderName(String senderName);
 
     List<RemitResponseDTO> getBySenderNameandOptionalBeneficiary(String senderName, String beneficiaryName);
+   // List<RemitResponseDTO> getByBeneficiaryNameStartingWith(String beneficiaryName);
 
 }

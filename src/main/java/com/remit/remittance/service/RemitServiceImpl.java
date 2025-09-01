@@ -159,8 +159,10 @@ public class RemitServiceImpl implements RemitServiceI {
         }
 
         if(beneficiaryName!=null && !beneficiaryName.isEmpty()){
+            String search =beneficiaryName.toLowerCase();
             remits=remits.stream()
-                    .filter(r->beneficiaryName.equals(r.getBeneficiaryName()))
+                    .filter(r-> r.getBeneficiaryName()!=null &&
+                            r.getBeneficiaryName().toLowerCase().contains(search))
                     .collect(Collectors.toList());
         }
         if(remits.isEmpty()){

@@ -26,7 +26,7 @@ public class FindBySenderNameUseCase {
 
             if (beneficiaryName != null && !beneficiaryName.isBlank()) {
                 remits = remitRepository
-                        .findBySenderNameStartingWithAndBeneficiaryNameContainingIgnoreCase(
+                        .findBySenderNameStartingWithAndBeneficiaryNameStartingWithIgnoreCase(
                                 senderName, beneficiaryName);
             } else {
                 remits = remitRepository.findBySenderNameStartingWithIgnoreCase(senderName);

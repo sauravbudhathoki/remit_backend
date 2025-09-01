@@ -1,5 +1,6 @@
 package com.remit.remittance.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RemitRequestDTO {
+//    @NotNull(message = "source agent is required")
     private String sourceAgent;
     private String senderName;
     private String globalRemitControlNo;
